@@ -1,5 +1,9 @@
 # RMF Task Scheduler
 
+[![CI](https://github.com/ros-industrial/rmf_scheduler/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/ros-industrial/rmf_scheduler/actions/workflows/build.yml)
+[![doc](https://app.readthedocs.org/projects/rmf-scheduler/badge/?version=latest)](https://app.readthedocs.org/projects/rmf-scheduler/)
+[![codecov](https://codecov.io/gh/ros-industrial/rmf_scheduler/graph/badge.svg?token=pKmw3Ifwft)](https://codecov.io/gh/ros-industrial/rmf_scheduler)
+
 [![support level: consortium / vendor](https://img.shields.io/badge/support%20level-consortium-brightgreen.svg)](http://rosindustrial.org/news/2016/10/7/better-supporting-a-growing-ros-industrial-software-platform)
 
 
@@ -12,7 +16,7 @@ Manages task schedules for RMF.
 
 ## Quick Setup
 
-Full setup instructions can be found in the Sphinx documentation.  
+Full setup instructions can be found in the Sphinx documentation.
 Create a colcon workspace and download the source code:
 
 ```bash
