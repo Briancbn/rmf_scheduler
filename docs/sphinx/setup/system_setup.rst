@@ -2,7 +2,7 @@ System Setup
 ============
 
 System Requirements
-------------------
+-------------------
 
 * Ubuntu 22.04
 
@@ -12,7 +12,7 @@ System Requirements
 
 
 Install ROS 2 Humble
--------------------
+--------------------
 
 Follow the `official documentation`__ to install the latest binary release of ROS 2.
 
