@@ -14,7 +14,7 @@ System Requirements
 Install ROS 2 Humble
 -------------------
 
-Follow the `official documentation`__ to install the latest binary release of ROS .
+Follow the `official documentation`__ to install the latest binary release of ROS 2.
 
 Install all necessary additional dependencies:
 

@@ -15,7 +15,7 @@ Refer to the [documentation](https://rmf-scheduler.readthedocs.io/) for usage in
 
 ## Quick Setup
 
-Full setup instructions with OpenRMF can be found in in the documentation above.  
+Full setup instructions with OpenRMF can be found in the documentation above.  
 Create a colcon workspace.
 
 ```bash
