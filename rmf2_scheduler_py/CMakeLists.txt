@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.15)
 project(rmf2_scheduler_py)
 
 find_package(ament_cmake REQUIRED)
@@ -21,7 +21,11 @@ include_directories(
   include
 )
 
-ament_python_install_package(rmf2_scheduler)
+if(NOT SKBUILD_PROJECT_VERSION)
+  ament_python_install_package(rmf2_scheduler
+    PACKAGE_DIR src/rmf2_scheduler
+  )
+endif()
 
 pybind11_add_module(core
   src/cache/action.cpp
@@ -68,15 +72,15 @@ target_include_directories(core
     ${rmf2_scheduler_INCLUDE_DIRS}
 )
 
-# Generate API client
-include(cmake/generate_openapi_python_client.cmake)
-
-generate_openapi_python_client(
-  OPENAPI_PYTHON_CLIENT_VERSION 0.24.3
-  OPENAPI_JSON openapi.json
-  MODULE_NAME client
-  DESTINATION "${PYTHON_INSTALL_DIR}/rmf2_scheduler/"
-)
+# # Generate API client
+# include(cmake/generate_openapi_python_client.cmake)
+#
+# generate_openapi_python_client(
+#   OPENAPI_PYTHON_CLIENT_VERSION 0.24.3
+#   OPENAPI_JSON openapi.json
+#   MODULE_NAME client
+#   DESTINATION "${PYTHON_INSTALL_DIR}/rmf2_scheduler/"
+# )
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -89,9 +93,17 @@ if(BUILD_TESTING)
   add_subdirectory(test)
 endif()
 
-install(TARGETS
-  core
-  DESTINATION "${PYTHON_INSTALL_DIR}/rmf2_scheduler"
-)
+
+if(NOT SKBUILD_PROJECT_VERSION)
+  install(TARGETS
+    core
+    DESTINATION ${PYTHON_INSTALL_DIR}/rmf2_scheduler
+  )
+else()
+  install(TARGETS
+    core
+    DESTINATION rmf2_scheduler
+  )
+endif()
 
 ament_package()
