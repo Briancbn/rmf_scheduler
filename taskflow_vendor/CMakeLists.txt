@@ -42,7 +42,7 @@ macro(build_taskflow)
   include(ExternalProject)
   ExternalProject_Add(Taskflow
     GIT_REPOSITORY https://github.com/taskflow/taskflow
-    GIT_TAG v3.5.0
+    GIT_TAG v3.11.0
     CMAKE_ARGS
       -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/taskflow_install
       ${extra_cmake_args}

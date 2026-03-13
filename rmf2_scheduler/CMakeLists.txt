@@ -1,13 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(rmf2_scheduler)
-
-find_package(ament_cmake REQUIRED)
-find_package(Boost REQUIRED)
-find_package(nlohmann_json REQUIRED)
-find_package(croncpp_vendor REQUIRED)
-find_package(taskflow_vendor REQUIRED)
-find_package(tinyxml2_vendor REQUIRED)
+project(rmf2_scheduler VERSION 0.2.0)
 
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 17)
@@ -16,10 +9,23 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 endif()
 
+option(USE_AMENT_VENDOR_EXTERNAL "Use thirdparty dependencies packaged as ament vendor package" ON)
+option(USE_CPM_EXTERNAL "Use CPM to download and install thirdparty dependencies" ON)
+
+file(GLOB CMAKE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/*.cmake")
+message(STATUS ${CMAKE_FILES})
+foreach(CMAKE_FILE ${CMAKE_FILES})
+  include(${CMAKE_FILE})
+endforeach()
+
+find_package(Boost REQUIRED)
+find_package(nlohmann_json REQUIRED)
+
+find_croncpp()
+find_taskflow()
+find_tinyxml2()
+
 include(GNUInstallDirs)
-include_directories(
-  include
-)
 
 add_library(${PROJECT_NAME}
   SHARED
@@ -65,17 +71,17 @@ add_library(${PROJECT_NAME}
   src/utils/url_utils.cpp
 )
 
-ament_target_dependencies(${PROJECT_NAME}
-  taskflow_vendor
-  croncpp_vendor
-)
-
 target_link_libraries(${PROJECT_NAME}
-  nlohmann_json::nlohmann_json
-  curl
-  # nlohmann_json_schema_validator
-  # ortools::ortools
-  tinyxml2
+  PRIVATE
+    nlohmann_json::nlohmann_json
+    croncpp::croncpp
+    Taskflow::Taskflow
+    curl
+    tinyxml2::tinyxml2
+)
+target_include_directories(${PROJECT_NAME} PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include/>
 )
 target_compile_definitions(${PROJECT_NAME}
   PUBLIC
@@ -144,6 +150,7 @@ endif()
 
 install(TARGETS
   ${PROJECT_NAME}
+  EXPORT ${PROJECT_NAME}-targets
   LIBRARY DESTINATION lib
 )
 
@@ -157,17 +164,54 @@ install(TARGETS
   DESTINATION lib/${PROJECT_NAME}
 )
 
+# Install headers
 install(
   DIRECTORY include/
   DESTINATION include
 )
 
-ament_export_include_directories(
-  include
+# export target
+set(INSTALL_CONFIG_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
+set(PACKAGE_CONFIG_VERSION_FILE "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake")
+set(PACKAGE_CONFIG_FILE "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake")
+# export(
+#   TARGETS ${PROJECT_NAME}
+#   NAMESPACE ${PROJECT_NAME}::
+#   FILE ${PROJECT_NAME}Targets.cmake
+# )
+
+install(
+  EXPORT ${PROJECT_NAME}-targets
+  FILE ${PROJECT_NAME}Targets.cmake
+  NAMESPACE ${PROJECT_NAME}::
+  DESTINATION ${INSTALL_CONFIG_DIR}
 )
 
-ament_export_libraries(
-  ${PROJECT_NAME}
+# Create cmake config files
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+  "cmake/${PROJECT_NAME}Config.cmake.in"
+  ${PACKAGE_CONFIG_FILE}
+  INSTALL_DESTINATION ${INSTALL_CONFIG_DIR}
 )
 
-ament_package()
+write_basic_package_version_file(
+  ${PACKAGE_CONFIG_VERSION_FILE}
+  COMPATIBILITY SameMajorVersion
+)
+
+
+install(
+  FILES
+    ${PACKAGE_CONFIG_VERSION_FILE}
+    ${PACKAGE_CONFIG_FILE}
+  DESTINATION ${INSTALL_CONFIG_DIR}
+)
+
+# Export ament index path
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/share/ament_index/resource_index/packages/${PROJECT_NAME} "")
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/ament_index/resource_index/packages/${PROJECT_NAME} DESTINATION share/ament_index/resource_index/packages)
+
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/ament_prefix_path.dsv "prepend-non-duplicate;AMENT_PREFIX_PATH;")
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/ament_prefix_path.dsv DESTINATION share/${PROJECT_NAME}/hook)
