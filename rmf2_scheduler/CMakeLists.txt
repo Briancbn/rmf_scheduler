@@ -137,11 +137,6 @@ target_link_libraries(run_scheduler
   ${PROJECT_NAME}
 )
 
-# rmf_api_generate_schema_headers(
-#   PACKAGE rmf_scheduler
-#   SCHEMAS_DIR schemas
-# )
-
 find_package(ament_cmake_gtest QUIET)
 if(NOT ament_cmake_gtest_FOUND)
   message(WARNING "ament_cmake_gtest not found, testing is disabled")
@@ -190,11 +185,6 @@ install(
 set(INSTALL_CONFIG_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 set(PACKAGE_CONFIG_VERSION_FILE "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake")
 set(PACKAGE_CONFIG_FILE "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake")
-# export(
-#   TARGETS ${PROJECT_NAME}
-#   NAMESPACE ${PROJECT_NAME}::
-#   FILE ${PROJECT_NAME}Targets.cmake
-# )
 
 install(
   EXPORT ${PROJECT_NAME}-targets
@@ -216,7 +206,6 @@ write_basic_package_version_file(
   ${PACKAGE_CONFIG_VERSION_FILE}
   COMPATIBILITY SameMajorVersion
 )
-
 
 install(
   FILES
