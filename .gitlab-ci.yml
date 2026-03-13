@@ -42,7 +42,7 @@ gcc-12:
 
   script:
     - cd rmf2_scheduler
-    - mkdir build
+    - mkdir build && cd build
     - cmake ..
     - make -j$(nproc)
 
