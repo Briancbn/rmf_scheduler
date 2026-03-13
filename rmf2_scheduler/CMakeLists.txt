@@ -11,6 +11,7 @@ endif()
 
 option(USE_AMENT_VENDOR_EXTERNAL "Use thirdparty dependencies packaged as ament vendor package" ON)
 option(USE_CPM_EXTERNAL "Use CPM to download and install thirdparty dependencies" ON)
+option(BUILD_TESTING "Build tests" ON)
 
 file(GLOB CMAKE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/cmake/*.cmake")
 message(STATUS ${CMAKE_FILES})
@@ -141,9 +142,24 @@ target_link_libraries(run_scheduler
 #   SCHEMAS_DIR schemas
 # )
 
+find_package(ament_cmake_gtest QUIET)
+if(NOT ament_cmake_gtest_FOUND)
+  message(WARNING "ament_cmake_gtest not found, testing is disabled")
+  set(BUILD_TESTING OFF)
+endif()
+
 if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  ament_lint_auto_find_test_dependencies()
+  find_package(ament_cmake_cpplint REQUIRED)
+  find_package(ament_cmake_uncrustify REQUIRED)
+  find_package(ament_cmake_xmllint REQUIRED)
+  find_package(ament_cmake_copyright REQUIRED)
+  find_package(ament_cmake_lint_cmake REQUIRED)
+
+  ament_copyright()
+  ament_cpplint()
+  ament_lint_cmake(CMakeLists.txt ./cmake/*.cmake ./cmake/*.cmake.in)
+  ament_uncrustify()
+  ament_xmllint()
 
   add_subdirectory(test)
 endif()
@@ -211,7 +227,10 @@ install(
 
 # Export ament index path
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/share/ament_index/resource_index/packages/${PROJECT_NAME} "")
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/ament_index/resource_index/packages/${PROJECT_NAME} DESTINATION share/ament_index/resource_index/packages)
+install(
+  FILES ${CMAKE_CURRENT_BINARY_DIR}/share/ament_index/resource_index/packages/${PROJECT_NAME}
+  DESTINATION share/ament_index/resource_index/packages
+)
 
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/ament_prefix_path.dsv "prepend-non-duplicate;AMENT_PREFIX_PATH;")
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/share/${PROJECT_NAME}/hook/ament_prefix_path.dsv DESTINATION share/${PROJECT_NAME}/hook)
