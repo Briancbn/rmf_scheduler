@@ -89,6 +89,8 @@ target_compile_definitions(${PROJECT_NAME}
   BOOST_DLL_USE_STD_FS
 )
 
+add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+
 add_executable(dag_to_bt
   examples/dag_to_bt.cpp
 )
