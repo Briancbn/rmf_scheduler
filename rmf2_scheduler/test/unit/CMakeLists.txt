@@ -118,11 +118,6 @@ ament_add_gmock(test_utils_dag_helper
 )
 target_link_libraries(test_utils_dag_helper ${PROJECT_NAME})
 
-ament_add_gmock(test_utils_tree_converter
-  utils/test_tree_converter.cpp
-)
-target_link_libraries(test_utils_tree_converter ${PROJECT_NAME})
-
 # HTTP
 ament_add_gtest(test_http_memory_stream
   http/test_memory_stream.cpp

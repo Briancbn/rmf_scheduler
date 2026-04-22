@@ -24,7 +24,6 @@ find_package(nlohmann_json REQUIRED)
 
 find_croncpp()
 find_taskflow()
-find_tinyxml2()
 
 include(GNUInstallDirs)
 
@@ -68,7 +67,6 @@ add_library(${PROJECT_NAME}
   src/utils/dag_helper.cpp
   src/utils/data_encoding.cpp
   src/utils/string_utils.cpp
-  src/utils/tree_converter.cpp
   src/utils/url_utils.cpp
 )
 
@@ -78,7 +76,6 @@ target_link_libraries(${PROJECT_NAME}
     croncpp::croncpp
     Taskflow::Taskflow
     curl
-    tinyxml2::tinyxml2
 )
 target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

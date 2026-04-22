@@ -38,7 +38,7 @@ gcc-12:
   image: gcc:12
   before_script:
     - apt-get -qq update
-    - apt-get -y -qq install cmake libboost-dev libcurl4-openssl-dev nlohmann-json3-dev libtinyxml2-dev
+    - apt-get -y -qq install cmake libboost-dev libcurl4-openssl-dev nlohmann-json3-dev
 
   script:
     - cd rmf2_scheduler
