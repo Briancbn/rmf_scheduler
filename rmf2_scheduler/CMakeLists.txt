@@ -88,14 +88,6 @@ target_compile_definitions(${PROJECT_NAME}
 
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
-add_executable(dag_to_bt
-  examples/dag_to_bt.cpp
-)
-
-target_link_libraries(dag_to_bt
-  ${PROJECT_NAME}
-)
-
 add_executable(rs_http_request
   examples/rs_http_request.cpp
 )
@@ -165,7 +157,6 @@ install(TARGETS
 )
 
 install(TARGETS
-  dag_to_bt
   rs_http_request
   ld_broker_crud
   clear_ld_broker

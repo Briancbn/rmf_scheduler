@@ -51,7 +51,6 @@ pybind11_add_module(core
   src/system_time_executor.cpp
   src/task_executor.cpp
   src/task_executor_manager.cpp
-  src/utils/tree_converter.cpp
 )
 
 target_link_libraries(core

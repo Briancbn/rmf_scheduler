@@ -39,7 +39,6 @@
 #include "rmf2_scheduler_py/system_time_executor.hpp"
 #include "rmf2_scheduler_py/task_executor.hpp"
 #include "rmf2_scheduler_py/task_executor_manager.hpp"
-#include "rmf2_scheduler_py/utils/tree_converter.hpp"
 
 PYBIND11_MODULE(core, m)
 {
@@ -65,9 +64,6 @@ PYBIND11_MODULE(core, m)
 
   // STORAGE
   rmf2_scheduler_py::storage::init_schedule_stream_py(m);
-
-  // UTILS
-  rmf2_scheduler_py::utils::init_tree_converter_py(m);
 
   // ROOT
   rmf2_scheduler_py::init_executor_data_py(m);
