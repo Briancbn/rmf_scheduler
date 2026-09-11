@@ -243,12 +243,14 @@ void SeriesAction::_apply_series_add()
     // Add series id to the initial occurrence
     TaskHandler::TaskConstIterator task_itr;
     assert(task_handler_->find(first_occ.id, task_itr));
-    task_itr->second->series_id = series->id();
+    // Save shared_ptr before the loop: emplace() can rehash the map and invalidate iterators
+    auto ref_task = task_itr->second;
+    ref_task->series_id = series->id();
     task_changes.push_back({task_itr->first, "update"});
 
     // Generate task occurrences and add them
     for (const auto & occ_itr : occ_to_add) {
-      auto task_to_add = data::Task::make_shared(*task_itr->second);
+      auto task_to_add = data::Task::make_shared(*ref_task);
       task_to_add->id = occ_itr.id;
       // In case the reference task is ongoing or completed
       task_to_add->status = "";
@@ -268,16 +270,18 @@ void SeriesAction::_apply_series_add()
 
     ProcessHandler::ProcessConstIterator process_itr;
     assert(process_handler_->find(first_occ.id, process_itr));
+    // Save shared_ptr before the loop: emplace() can rehash the map and invalidate iterators
+    auto ref_process = process_itr->second;
 
     // reserve task changes size
-    task_changes.reserve((occ_to_add.size() + 1) * process_itr->second->graph.size());
+    task_changes.reserve((occ_to_add.size() + 1) * ref_process->graph.size());
 
     // Add series id to process
-    process_itr->second->series_id = series->id();
+    ref_process->series_id = series->id();
     process_changes.push_back({process_itr->first, "update"});
 
     // Ensure initial tasks are set to first occurrence time
-    process_itr->second->graph.for_each_node(
+    ref_process->graph.for_each_node(
       [&first_occ, &task_changes, this](const data::Node::Ptr & node) {
         TaskHandler::TaskConstIterator task_itr;
         task_handler_->find(node->id(), task_itr);
@@ -289,14 +293,14 @@ void SeriesAction::_apply_series_add()
     // Generate and add process and tasks occurrences
     for (const auto & occ_itr : occ_to_add) {
       // Create copy of process
-      auto process_to_add = data::Process::make_shared(*process_itr->second);
+      auto process_to_add = data::Process::make_shared(*ref_process);
 
       // Update process data
       process_to_add->series_id = series->id();
       process_to_add->id = occ_itr.id;
 
       // create and add tasks
-      auto nodes = process_itr->second->graph.get_all_nodes();
+      auto nodes = ref_process->graph.get_all_nodes();
       for (const auto & n : nodes) {
         // Find original task
         TaskHandler::TaskConstIterator task_itr;
@@ -389,10 +393,12 @@ void SeriesAction::_apply_series_expand_until()
     // Add series id to the initial occurrence
     TaskHandler::TaskConstIterator task_ref_itr;
     assert(task_handler_->find(first_occ.id, task_ref_itr));
+    // Save shared_ptr before the loop: emplace() can rehash the map and invalidate iterators
+    auto ref_task = task_ref_itr->second;
 
     // Generate task occurrences and add them
     for (const auto & occ_itr : occ_to_add) {
-      auto task_to_add = data::Task::make_shared(*task_ref_itr->second);
+      auto task_to_add = data::Task::make_shared(*ref_task);
       task_to_add->id = occ_itr.id;
       // In case the reference task is ongoing or completed
       task_to_add->status = "";
@@ -412,21 +418,23 @@ void SeriesAction::_apply_series_expand_until()
 
     ProcessHandler::ProcessConstIterator process_ref_itr;
     assert(process_handler_->find(first_occ.id, process_ref_itr));
+    // Save shared_ptr before the loop: emplace() can rehash the map and invalidate iterators
+    auto ref_process = process_ref_itr->second;
 
     // reserve task changes size
-    task_changes.reserve((occ_to_add.size()) * process_ref_itr->second->graph.size());
+    task_changes.reserve((occ_to_add.size()) * ref_process->graph.size());
 
     // Generate and add process and tasks occurrences
     for (const auto & occ_itr : occ_to_add) {
       // Create copy of process
-      auto process_to_add = data::Process::make_shared(*process_ref_itr->second);
+      auto process_to_add = data::Process::make_shared(*ref_process);
 
       // Update process data
       process_to_add->series_id = series_to_update->id();
       process_to_add->id = occ_itr.id;
 
       // create and add tasks
-      auto nodes = process_ref_itr->second->graph.get_all_nodes();
+      auto nodes = ref_process->graph.get_all_nodes();
       for (const auto & n : nodes) {
         // Find original task
         TaskHandler::TaskConstIterator task_itr;
