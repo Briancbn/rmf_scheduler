@@ -173,7 +173,7 @@ public:
   to_chrono() const
   {
     return std::chrono::time_point<Clock, DurationType>(
-      std::chrono::nanoseconds(time_value_)
+      std::chrono::duration_cast<DurationType>(std::chrono::nanoseconds(time_value_))
     );
   }
 
