@@ -43,7 +43,6 @@ if(NOT croncpp_FOUND)
       GIT_REPOSITORY https://github.com/mariusbancila/croncpp
       GIT_TAG e817348a2dcd77b968c0b87a43274932b9800f4b  # v2023.03.30
       OPTIONS "CRONCPP_BUILD_TESTS OFF" "CRONCPP_BUILD_BENCHMARK OFF"
-      PATCHES "${CMAKE_CURRENT_LIST_DIR}/patches/croncpp_include_dir.patch"
       EXCLUDE_FROM_ALL YES
     )
   endif()

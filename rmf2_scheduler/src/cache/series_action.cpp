@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "croncpp/croncpp.h"
+#include "croncpp.h"
 
 #include "rmf2_scheduler/cache/series_action.hpp"
 #include "rmf2_scheduler/data/occurrence.hpp"
