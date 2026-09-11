@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <sstream>
+
 #include "rmf2_scheduler/cache/event_action.hpp"
 
 namespace rmf2_scheduler
