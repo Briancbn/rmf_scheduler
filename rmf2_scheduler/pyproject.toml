@@ -23,6 +23,7 @@ classifiers = [
 [dependency-groups]
 test = [
     "pytest>=8.0.2",
+    "pytest-cov>=6.0",
 ]
 lint = [
     "ruff>=0.9",
@@ -55,6 +56,10 @@ cache-keys = [
   { file = "python/**/*.{h,c,hpp,cpp,txt}" },
   { file = "CMakeLists.txt" },
 ]
+
+[tool.coverage.run]
+source = ["rmf2_scheduler"]
+omit = ["python/tests/*"]
 
 [tool.ruff]
 extend-exclude = ["*.pyi"]
