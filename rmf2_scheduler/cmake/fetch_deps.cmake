@@ -60,7 +60,7 @@ if(NOT Taskflow_FOUND)
       OPTIONS 
         "TF_BUILD_TESTS OFF" 
         "TF_BUILD_EXAMPLES OFF"
-        "TF_DEFAULT_BUILD_TYPE RelWithDebInfo" 
+        "TF_DEFAULT_BUILD_TYPE ''" 
       GIT_SHALLOW TRUE
       EXCLUDE_FROM_ALL YES
     )
