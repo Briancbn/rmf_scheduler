@@ -1,0 +1,32 @@
+diff -u a/CMakeLists.txt b/CMakeLists.txt
+index a1d8cea..7de8e50 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -150,27 +150,6 @@ endif()
+ #  include_directories(${ComputeCpp_INCLUDE_DIRS})
+ #endif()
+ 
+-# -----------------------------------------------------------------------------
+-# default to release build, unless explicitly specified
+-# -----------------------------------------------------------------------------
+-if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+-  message(STATUS "Setting build type to '${TF_DEFAULT_BUILD_TYPE}'")
+-  set(
+-    CMAKE_BUILD_TYPE "${TF_DEFAULT_BUILD_TYPE}" 
+-    CACHE
+-    STRING "Choose the type of build." 
+-    FORCE
+-  )
+-  # Set the possible values of build type for cmake-gui
+-  set_property(
+-    CACHE 
+-    CMAKE_BUILD_TYPE 
+-    PROPERTY STRINGS
+-    "Debug" "Release" "MinSizeRel" "RelWithDebInfo"
+-  )
+-endif()
+-
+-
+ # -----------------------------------------------------------------------------
+ # tf::default_setting
+ # -----------------------------------------------------------------------------

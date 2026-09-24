@@ -21,16 +21,21 @@ find_package(croncpp QUIET)
 find_package(Taskflow QUIET)
 
 if(RMF2_SCHEDULER_FETCH_DEPS AND (NOT croncpp_FOUND OR NOT Taskflow_FOUND))
-  set(CPM_DOWNLOAD_VERSION 0.40.2)
+  set(CPM_DOWNLOAD_VERSION 0.43.1)
+  set(CPM_FILE_HASH 1c40fc102ce9625d7de7eb14f541cab30cc3138dca627f0b0ec40293ce6c2934)
   set(_cpm_file "${CMAKE_CURRENT_BINARY_DIR}/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
   if(NOT EXISTS "${_cpm_file}")
     file(DOWNLOAD
       "https://github.com/cpm-cmake/CPM.cmake/releases/download/v${CPM_DOWNLOAD_VERSION}/CPM.cmake"
       "${_cpm_file}"
+      EXPECTED_HASH SHA256=${CPM_FILE_HASH}
     )
   endif()
   include("${_cpm_file}")
   unset(_cpm_file)
+  if(NOT CPM_SOURCE_CACHE)
+    set(CPM_SOURCE_CACHE ${CMAKE_CURRENT_BINARY_DIR}/.cpm-cache)
+  endif()
 endif()
 
 if(NOT croncpp_FOUND)
@@ -57,10 +62,10 @@ if(NOT Taskflow_FOUND)
       NAME Taskflow
       GIT_REPOSITORY https://github.com/taskflow/taskflow
       GIT_TAG 816b4ad53b44196c88f409eb7b4a25a0e3bfdf42  # v3.11.0
+      PATCHES ${CMAKE_CURRENT_SOURCE_DIR}/cmake/taskflow.patch
       OPTIONS 
         "TF_BUILD_TESTS OFF" 
         "TF_BUILD_EXAMPLES OFF"
-        "TF_DEFAULT_BUILD_TYPE ''" 
       GIT_SHALLOW TRUE
       EXCLUDE_FROM_ALL YES
     )
