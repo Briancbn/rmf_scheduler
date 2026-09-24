@@ -20,7 +20,7 @@ fi
 
 package_name=${TARGET_REPO_NAME:-"rmf2_scheduler"}
 
-ignored_files=("*/test/*" "*/examples/*")
+ignored_files=("*/test/*" "*/examples/*" "*/build/*")
 
 if [ "$1" = "python-ci" ]; then
   source_path="$(pwd)/*"
