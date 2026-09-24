@@ -20,13 +20,18 @@ fi
 
 package_name=${TARGET_REPO_NAME:-"rmf2_scheduler"}
 
-ignored_files=("*/test/*" "*/examples/*")
+ignored_files=("*/test/*" "*/examples/*" "*/build/*")
 
-# Install LCOV
-if [ "$(dpkg-query -W -f='${Status}' lcov 2>/dev/null | grep -c 'ok installed')" -eq 0 ];
-then
-  sudo apt-get install -y -qq lcov
+if [ "$1" = "python-ci" ]; then
+  source_path="$(pwd)/*"
+else
+  source_path="$(pwd)/src/$package_name/*"
 fi
+
+# Install LCOV 1.16
+curl -OLs --output-dir /tmp https://github.com/linux-test-project/lcov/releases/download/v1.16/lcov-1.16.tar.gz
+tar -xzf /tmp/lcov-1.16.tar.gz -C /tmp
+make -C /tmp/lcov-1.16 install > /dev/null 2>&1
 
 
 # Capture initial coverage info
@@ -43,7 +48,7 @@ lcov --add-tracefile initial_coverage.info \
      --output-file coverage.info "${branch_command[@]}" || return 0 \
   && rm initial_coverage.info test_coverage.info
 # Extract repository files
-lcov --extract coverage.info "$(pwd)/src/$package_name/*" \
+lcov --extract coverage.info "$source_path" \
      --output-file coverage.info "${branch_command[@]}" | grep -ve "^Extracting"
 # Filter out ignored files
 lcov --remove coverage.info "${ignored_files[@]}" \
@@ -55,6 +60,10 @@ if [ "$1" = "ci" ]; then
 
   cd - || return 1
   cp -r ~/target_ws/coverage.info .
+
+elif [ "$1" = "python-ci" ]; then
+  sed -i "s~$(pwd)/~~g" coverage.info
+  lcov --list coverage.info "${branch_command[@]}"
 
 elif [ "$1" = "html" ]; then
   genhtml "${branch_html_command[@]}" coverage.info -o coverage
