@@ -57,7 +57,10 @@ if(NOT Taskflow_FOUND)
       NAME Taskflow
       GIT_REPOSITORY https://github.com/taskflow/taskflow
       GIT_TAG 816b4ad53b44196c88f409eb7b4a25a0e3bfdf42  # v3.11.0
-      OPTIONS "TF_BUILD_TESTS OFF" "TF_BUILD_EXAMPLES OFF"
+      OPTIONS 
+        "TF_BUILD_TESTS OFF" 
+        "TF_BUILD_EXAMPLES OFF"
+        "TF_DEFAULT_BUILD_TYPE ''" 
       GIT_SHALLOW TRUE
       EXCLUDE_FROM_ALL YES
     )
