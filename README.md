@@ -22,11 +22,6 @@ See the [documentation](./docs/introduction.md) for more information.
 
 See the [Build From Source](./docs/build_from_source.md).
 
-## Quick Start
-
-- [Python API Server Demo (Native Run)](./docs/quick_start.md/#native)
-- [Docker](./docs/quick_start.md/#docker)
-
 ## Data Structures
 
 [Data Structures](./docs/data_structures.md)

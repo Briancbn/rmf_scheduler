@@ -55,7 +55,7 @@ Download the source code
 
 ```bash
 cd src
-git clone https://github.com/ros-industrial/rmf_scheduler.git
+git clone https://github.com/ros-industrial/rmf2_scheduler.git
 ```
 
 Install dependencies.
