@@ -15,7 +15,7 @@
 #include <cassert>
 #include <set>
 
-#include "croncpp/croncpp.h"
+#include "croncpp.h"
 
 #include "rmf2_scheduler/data/series.hpp"
 #include "rmf2_scheduler/data/uuid.hpp"

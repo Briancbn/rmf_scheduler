@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "croncpp/croncpp.h"
+#include "croncpp.h"
 
 #include "rmf2_scheduler/cache/series_action.hpp"
 #include "rmf2_scheduler/data/occurrence.hpp"
@@ -242,13 +242,16 @@ void SeriesAction::_apply_series_add()
 
     // Add series id to the initial occurrence
     TaskHandler::TaskConstIterator task_itr;
-    assert(task_handler_->find(first_occ.id, task_itr));
-    task_itr->second->series_id = series->id();
+    bool result = task_handler_->find(first_occ.id, task_itr);
+    assert(result);
+    // Save shared_ptr before the loop: emplace() can rehash the map and invalidate iterators
+    auto ref_task = task_itr->second;
+    ref_task->series_id = series->id();
     task_changes.push_back({task_itr->first, "update"});
 
     // Generate task occurrences and add them
     for (const auto & occ_itr : occ_to_add) {
-      auto task_to_add = data::Task::make_shared(*task_itr->second);
+      auto task_to_add = data::Task::make_shared(*ref_task);
       task_to_add->id = occ_itr.id;
       // In case the reference task is ongoing or completed
       task_to_add->status = "";
@@ -267,20 +270,24 @@ void SeriesAction::_apply_series_add()
     process_changes.reserve(occ_to_add.size() + 1);
 
     ProcessHandler::ProcessConstIterator process_itr;
-    assert(process_handler_->find(first_occ.id, process_itr));
+    bool result = process_handler_->find(first_occ.id, process_itr);
+    assert(result);
+    // Save shared_ptr before the loop: emplace() can rehash the map and invalidate iterators
+    auto ref_process = process_itr->second;
 
     // reserve task changes size
-    task_changes.reserve((occ_to_add.size() + 1) * process_itr->second->graph.size());
+    task_changes.reserve((occ_to_add.size() + 1) * ref_process->graph.size());
 
     // Add series id to process
-    process_itr->second->series_id = series->id();
+    ref_process->series_id = series->id();
     process_changes.push_back({process_itr->first, "update"});
 
     // Ensure initial tasks are set to first occurrence time
-    process_itr->second->graph.for_each_node(
+    ref_process->graph.for_each_node(
       [&first_occ, &task_changes, this](const data::Node::Ptr & node) {
         TaskHandler::TaskConstIterator task_itr;
-        task_handler_->find(node->id(), task_itr);
+        bool result = task_handler_->find(node->id(), task_itr);
+        assert(result);
         task_itr->second->start_time = first_occ.time;
         task_changes.push_back({node->id(), "update"});
       }
@@ -289,18 +296,19 @@ void SeriesAction::_apply_series_add()
     // Generate and add process and tasks occurrences
     for (const auto & occ_itr : occ_to_add) {
       // Create copy of process
-      auto process_to_add = data::Process::make_shared(*process_itr->second);
+      auto process_to_add = data::Process::make_shared(*ref_process);
 
       // Update process data
       process_to_add->series_id = series->id();
       process_to_add->id = occ_itr.id;
 
       // create and add tasks
-      auto nodes = process_itr->second->graph.get_all_nodes();
+      auto nodes = ref_process->graph.get_all_nodes();
       for (const auto & n : nodes) {
         // Find original task
         TaskHandler::TaskConstIterator task_itr;
-        assert(task_handler_->find(n.first, task_itr));
+        bool result = task_handler_->find(n.first, task_itr);
+        assert(result);
 
         // generate and replace graph node with new id
         const auto new_id = data::gen_uuid();
@@ -371,7 +379,8 @@ bool SeriesAction::_validate_series_expand_until(
 void SeriesAction::_apply_series_expand_until()
 {
   SeriesHandler::SeriesConstIterator itr;
-  assert(series_handler_->find(data_.id.value(), itr));
+  bool result = series_handler_->find(data_.id.value(), itr);
+  assert(result);
   data::Series::Ptr series_to_update = data::Series::make_shared(
     *itr->second
   );
@@ -388,11 +397,14 @@ void SeriesAction::_apply_series_expand_until()
 
     // Add series id to the initial occurrence
     TaskHandler::TaskConstIterator task_ref_itr;
-    assert(task_handler_->find(first_occ.id, task_ref_itr));
+    bool result = task_handler_->find(first_occ.id, task_ref_itr);
+    assert(result);
+    // Save shared_ptr before the loop: emplace() can rehash the map and invalidate iterators
+    auto ref_task = task_ref_itr->second;
 
     // Generate task occurrences and add them
     for (const auto & occ_itr : occ_to_add) {
-      auto task_to_add = data::Task::make_shared(*task_ref_itr->second);
+      auto task_to_add = data::Task::make_shared(*ref_task);
       task_to_add->id = occ_itr.id;
       // In case the reference task is ongoing or completed
       task_to_add->status = "";
@@ -411,26 +423,30 @@ void SeriesAction::_apply_series_expand_until()
     process_changes.reserve(occ_to_add.size());
 
     ProcessHandler::ProcessConstIterator process_ref_itr;
-    assert(process_handler_->find(first_occ.id, process_ref_itr));
+    bool result = process_handler_->find(first_occ.id, process_ref_itr);
+    assert(result);
+    // Save shared_ptr before the loop: emplace() can rehash the map and invalidate iterators
+    auto ref_process = process_ref_itr->second;
 
     // reserve task changes size
-    task_changes.reserve((occ_to_add.size()) * process_ref_itr->second->graph.size());
+    task_changes.reserve((occ_to_add.size()) * ref_process->graph.size());
 
     // Generate and add process and tasks occurrences
     for (const auto & occ_itr : occ_to_add) {
       // Create copy of process
-      auto process_to_add = data::Process::make_shared(*process_ref_itr->second);
+      auto process_to_add = data::Process::make_shared(*ref_process);
 
       // Update process data
       process_to_add->series_id = series_to_update->id();
       process_to_add->id = occ_itr.id;
 
       // create and add tasks
-      auto nodes = process_ref_itr->second->graph.get_all_nodes();
+      auto nodes = ref_process->graph.get_all_nodes();
       for (const auto & n : nodes) {
         // Find original task
         TaskHandler::TaskConstIterator task_itr;
-        assert(task_handler_->find(n.first, task_itr));
+        bool result = task_handler_->find(n.first, task_itr);
+        assert(result);
 
         // generate and replace graph node with new id
         const auto new_id = data::gen_uuid();
@@ -585,7 +601,8 @@ void SeriesAction::_apply_series_update_occurrence_time()
 {
   // update series occurrence
   SeriesHandler::SeriesConstIterator itr;
-  assert(series_handler_->find(data_.id.value(), itr));
+  bool result = series_handler_->find(data_.id.value(), itr);
+  assert(result);
   const auto occ = itr->second->get_occurrence(data_.occurrence_id.value());
   auto series_to_update = data::Series::make_shared(*itr->second);
   series_to_update->update_occurrence(occ.time, data_.occurrence_time.value());
@@ -594,20 +611,23 @@ void SeriesAction::_apply_series_update_occurrence_time()
   // update task or process
   if (itr->second->type() == "task") {
     TaskHandler::TaskConstIterator task_itr;
-    assert(task_handler_->find(data_.occurrence_id.value(), task_itr));
+    bool result = task_handler_->find(data_.occurrence_id.value(), task_itr);
+    assert(result);
     auto task_update = data::Task::make_shared(*task_itr->second);
     task_update->start_time = data_.occurrence_time.value();
     task_handler_->replace(task_itr, task_update);
     record_.add("task", {{task_itr->first, "update"}});
   } else if (itr->second->type() == "process") {
     ProcessHandler::ProcessConstIterator process_itr;
-    assert(process_handler_->find(data_.occurrence_id.value(), process_itr));
+    bool result = process_handler_->find(data_.occurrence_id.value(), process_itr);
+    assert(result);
     const auto nodes = process_itr->second->graph.get_all_nodes();
     std::vector<data::ChangeAction> task_changes;
     task_changes.reserve(nodes.size());
     for (const auto & n : nodes) {
       TaskHandler::TaskConstIterator task_itr;
-      assert(task_handler_->find(n.first, task_itr));
+      bool result = task_handler_->find(n.first, task_itr);
+      assert(result);
       auto task_update = data::Task::make_shared(*task_itr->second);
       task_update->start_time = data_.occurrence_time.value();
       task_handler_->emplace(task_update);
@@ -672,7 +692,8 @@ bool SeriesAction::_validate_series_delete_occurrence(
 void SeriesAction::_apply_series_delete_occurrence()
 {
   SeriesHandler::SeriesConstIterator series_itr;
-  assert(series_handler_->find(data_.id.value(), series_itr));
+  bool result = series_handler_->find(data_.id.value(), series_itr);
+  assert(result);
   auto occ_to_delete =
     series_itr->second->get_occurrence(data_.occurrence_id.value());
 
@@ -681,7 +702,8 @@ void SeriesAction::_apply_series_delete_occurrence()
     std::vector<data::ChangeAction> task_changes;
     task_changes.reserve(1);
     TaskHandler::TaskConstIterator task_itr;
-    assert(task_handler_->find(occ_to_delete.id, task_itr));
+    bool result = task_handler_->find(occ_to_delete.id, task_itr);
+    assert(result);
     task_handler_->erase(task_itr);
     task_changes.push_back({occ_to_delete.id, "delete"});
     record_.add("task", task_changes);
@@ -689,7 +711,8 @@ void SeriesAction::_apply_series_delete_occurrence()
     std::vector<data::ChangeAction> process_changes;
     process_changes.reserve(1);
     ProcessHandler::ProcessConstIterator process_itr;
-    assert(process_handler_->find(occ_to_delete.id, process_itr));
+    bool result = process_handler_->find(occ_to_delete.id, process_itr);
+    assert(result);
     process_handler_->erase(process_itr);
     process_changes.push_back({occ_to_delete.id, "delete"});
     record_.add("process", process_changes);
@@ -700,7 +723,8 @@ void SeriesAction::_apply_series_delete_occurrence()
     task_changes.reserve(nodes.size());
     for (const auto & n : nodes) {
       TaskHandler::TaskConstIterator task_itr;
-      assert(task_handler_->find(n.first, task_itr));
+      bool result = task_handler_->find(n.first, task_itr);
+      assert(result);
       task_handler_->erase(task_itr);
       task_changes.push_back({n.first, "delete"});
     }
@@ -740,7 +764,8 @@ bool SeriesAction::_validate_series_delete(
 void SeriesAction::_apply_series_delete_series()
 {
   SeriesHandler::SeriesConstIterator series_itr;
-  assert(series_handler_->find(data_.id.value(), series_itr));
+  bool result = series_handler_->find(data_.id.value(), series_itr);
+  assert(result);
   const auto occurrences = series_itr->second->occurrences();
 
   // Delete all occurrences
@@ -749,7 +774,8 @@ void SeriesAction::_apply_series_delete_series()
     task_changes.reserve(occurrences.size());
     for (const auto & occ : occurrences) {
       TaskHandler::TaskConstIterator task_itr;
-      assert(task_handler_->find(occ.id, task_itr));
+      bool result = task_handler_->find(occ.id, task_itr);
+      assert(result);
       task_handler_->erase(task_itr);
       task_changes.push_back({occ.id, "delete"});
     }
@@ -761,14 +787,16 @@ void SeriesAction::_apply_series_delete_series()
 
     for (const auto & occ : occurrences) {
       ProcessHandler::ProcessConstIterator process_itr;
-      assert(process_handler_->find(occ.id, process_itr));
+      bool result = process_handler_->find(occ.id, process_itr);
+      assert(result);
       // update tasks in process
       auto nodes = process_itr->second->graph.get_all_nodes();
       std::vector<data::ChangeAction> task_changes;
       task_changes.reserve(nodes.size());
       for (const auto & n : nodes) {
         TaskHandler::TaskConstIterator task_itr;
-        assert(task_handler_->find(n.first, task_itr));
+        bool result = task_handler_->find(n.first, task_itr);
+        assert(result);
         task_changes.push_back({n.first, "delete"});
         task_handler_->erase(task_itr);
       }
