@@ -14,6 +14,7 @@
 
 #include <pybind11/stl.h>
 
+#include "rmf2_scheduler_py/py_utils.hpp"
 #include "rmf2_scheduler_py/storage/schedule_stream.hpp"
 #include "rmf2_scheduler/storage/schedule_stream.hpp"
 
@@ -22,35 +23,6 @@ namespace rmf2_scheduler_py
 
 namespace storage
 {
-
-// Every ScheduleStream pure virtual follows the same shape: look up a
-// same-named Python override, call it with the forwarded args, and expect
-// a (bool result, str error) tuple back -- setting `error` and returning
-// false gracefully (rather than throwing) whenever that contract isn't
-// met, exactly like PyTaskExecutor::start() does for TaskExecutor.
-#define RS_SCHEDULE_STREAM_PY_OVERRIDE(fn, ...)                                        \
-  pybind11::gil_scoped_acquire gil;  /* Acquire the GIL while in this scope. */        \
-  pybind11::function override = pybind11::get_override(this, #fn);                    \
-  if (!override) {                                                                     \
-    error = "ScheduleStream " #fn " failed: cannot find defined Python function";      \
-    return false;                                                                      \
-  }                                                                                     \
-  auto obj = override(__VA_ARGS__);                                                    \
-  if (!py::isinstance<py::tuple>(obj)) {                                               \
-    error = "ScheduleStream " #fn " failed: Invalid Python return type.";              \
-    return false;                                                                      \
-  }                                                                                     \
-  py::tuple tuple_obj = obj;                                                           \
-  if (py::len(tuple_obj) != 2) {                                                       \
-    error = "ScheduleStream " #fn " failed: Invalid number of returns";                \
-    return false;                                                                      \
-  }                                                                                     \
-  bool result = tuple_obj[0].cast<bool>();                                             \
-  if (!result) {                                                                       \
-    error = tuple_obj[1].cast<std::string>();                                          \
-    return false;                                                                      \
-  }                                                                                     \
-  return true
 
 /// Trampoline that lets a Python subclass of ScheduleStream (e.g. a
 /// SQLAlchemy-backed implementation) be dispatched into by the native
@@ -69,7 +41,7 @@ public:
     std::string & error
   ) override
   {
-    RS_SCHEDULE_STREAM_PY_OVERRIDE(read_schedule, cache, time_window);
+    RS_PYBIND11_OVERRIDE_PURE_WITH_BOOL_ERROR(ScheduleStream, read_schedule, cache, time_window);
   }
 
   bool write_schedule(
@@ -78,7 +50,7 @@ public:
     std::string & error
   ) override
   {
-    RS_SCHEDULE_STREAM_PY_OVERRIDE(write_schedule, cache, time_window);
+    RS_PYBIND11_OVERRIDE_PURE_WITH_BOOL_ERROR(ScheduleStream, write_schedule, cache, time_window);
   }
 
   bool write_schedule(
@@ -87,7 +59,7 @@ public:
     std::string & error
   ) override
   {
-    RS_SCHEDULE_STREAM_PY_OVERRIDE(write_schedule, cache, records);
+    RS_PYBIND11_OVERRIDE_PURE_WITH_BOOL_ERROR(ScheduleStream, write_schedule, cache, records);
   }
 
   bool refresh_tasks(
@@ -96,11 +68,9 @@ public:
     std::string & error
   ) override
   {
-    RS_SCHEDULE_STREAM_PY_OVERRIDE(refresh_tasks, cache, ids);
+    RS_PYBIND11_OVERRIDE_PURE_WITH_BOOL_ERROR(ScheduleStream, refresh_tasks, cache, ids);
   }
 };
-
-#undef RS_SCHEDULE_STREAM_PY_OVERRIDE
 
 void init_schedule_stream_py(py::module & m)
 {
