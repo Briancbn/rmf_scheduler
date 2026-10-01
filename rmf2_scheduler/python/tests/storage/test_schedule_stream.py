@@ -106,7 +106,7 @@ def test_refresh_tasks_success(mock_schedule_stream):
     assert result
     assert error == ""
     mock_schedule_stream.mock.refresh_tasks.assert_called_once()
-    called_cache, called_ids = mock_schedule_stream.mock.refresh_tasks.call_args[0]
+    called_ids = mock_schedule_stream.mock.refresh_tasks.call_args[0][1]
     assert called_ids == ["task_1", "task_2"]
 
 
