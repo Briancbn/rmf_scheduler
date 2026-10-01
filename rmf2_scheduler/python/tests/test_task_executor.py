@@ -18,9 +18,7 @@ from rmf2_scheduler import ExecutorData, TaskExecutor
 def test_start_success(mock_task_executor):
     mock_task_executor.mock.start.return_value = (True, "")
 
-    result, error = TaskExecutor.start(
-        mock_task_executor, "task_id", ExecutorData()
-    )
+    result, error = TaskExecutor.start(mock_task_executor, "task_id", ExecutorData())
 
     assert result
     assert error == ""
@@ -30,9 +28,7 @@ def test_start_success(mock_task_executor):
 def test_start_propagates_failure(mock_task_executor):
     mock_task_executor.mock.start.return_value = (False, "start failed")
 
-    result, error = TaskExecutor.start(
-        mock_task_executor, "task_id", ExecutorData()
-    )
+    result, error = TaskExecutor.start(mock_task_executor, "task_id", ExecutorData())
 
     assert not result
     assert error == "start failed"
@@ -41,9 +37,7 @@ def test_start_propagates_failure(mock_task_executor):
 def test_start_invalid_return_type(mock_task_executor):
     mock_task_executor.mock.start.return_value = "not a tuple"
 
-    result, error = TaskExecutor.start(
-        mock_task_executor, "task_id", ExecutorData()
-    )
+    result, error = TaskExecutor.start(mock_task_executor, "task_id", ExecutorData())
 
     assert not result
     assert "Invalid Python return type" in error
@@ -52,9 +46,7 @@ def test_start_invalid_return_type(mock_task_executor):
 def test_start_invalid_number_of_returns(mock_task_executor):
     mock_task_executor.mock.start.return_value = (True,)
 
-    result, error = TaskExecutor.start(
-        mock_task_executor, "task_id", ExecutorData()
-    )
+    result, error = TaskExecutor.start(mock_task_executor, "task_id", ExecutorData())
 
     assert not result
     assert "Invalid number of returns" in error
@@ -66,9 +58,7 @@ def test_start_missing_override():
     class BareTaskExecutor(TaskExecutor):
         pass
 
-    result, error = TaskExecutor.start(
-        BareTaskExecutor(), "task_id", ExecutorData()
-    )
+    result, error = TaskExecutor.start(BareTaskExecutor(), "task_id", ExecutorData())
 
     assert not result
     assert "cannot find defined Python function" in error
