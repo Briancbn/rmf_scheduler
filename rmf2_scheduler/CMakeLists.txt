@@ -94,11 +94,11 @@ endif()
 
 option(BUILD_TESTING "Build tests" ON)
 if(BUILD_TESTING)
+  enable_testing()
+
   find_package(ament_cmake QUIET)
   if(ament_cmake_FOUND)
-    # ament_lint_auto hooks into ament_package(), which this project does
-    # not call, so it never actually runs any linter. Call each linter
-    # directly instead.
+    # linters
     find_package(ament_cmake_copyright REQUIRED)
     find_package(ament_cmake_xmllint REQUIRED)
     find_package(ament_cmake_lint_cmake REQUIRED)
@@ -110,7 +110,14 @@ if(BUILD_TESTING)
     ament_lint_cmake()
     ament_uncrustify()
     ament_cpplint()
+
+    # unit test dependencies
+    find_package(ament_cmake_gtest REQUIRED)
+    find_package(ament_cmake_gmock REQUIRED)
   endif()
+
+  include(cmake/rmf2_scheduler_add_gtest.cmake)
+  include(cmake/rmf2_scheduler_add_gmock.cmake)
 
   add_subdirectory(test)
 endif()
