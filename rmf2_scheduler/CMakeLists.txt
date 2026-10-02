@@ -96,8 +96,20 @@ option(BUILD_TESTING "Build tests" ON)
 if(BUILD_TESTING)
   find_package(ament_cmake QUIET)
   if(ament_cmake_FOUND)
-    find_package(ament_lint_auto REQUIRED)
-    ament_lint_auto_find_test_dependencies()
+    # ament_lint_auto hooks into ament_package(), which this project does
+    # not call, so it never actually runs any linter. Call each linter
+    # directly instead.
+    find_package(ament_cmake_copyright REQUIRED)
+    find_package(ament_cmake_xmllint REQUIRED)
+    find_package(ament_cmake_lint_cmake REQUIRED)
+    find_package(ament_cmake_uncrustify REQUIRED)
+    find_package(ament_cmake_cpplint REQUIRED)
+
+    ament_copyright()
+    ament_xmllint()
+    ament_lint_cmake()
+    ament_uncrustify()
+    ament_cpplint()
   endif()
 
   add_subdirectory(test)
