@@ -1,4 +1,4 @@
-// Copyright 2025 ROS Industrial Consortium Asia Pacific
+// Copyright 2026 ROS Industrial Consortium Asia Pacific
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,26 +18,21 @@
 #include "rmf2_scheduler_py/storage/schedule_stream.hpp"
 #include "rmf2_scheduler/storage/schedule_stream.hpp"
 
-namespace rmf2_scheduler_py
+namespace rmf2_scheduler
 {
 
 namespace storage
 {
 
-/// Trampoline that lets a Python subclass of ScheduleStream (e.g. a
-/// SQLAlchemy-backed implementation) be dispatched into by the native
-/// Scheduler. Without this, ScheduleStream can only be produced via the
-/// create_default/create_simple factories -- it has no pybind11 py::init(),
-/// so Python cannot construct or subclass it at all.
-class PyScheduleStream : public rmf2_scheduler::storage::ScheduleStream
+class PyScheduleStream : public ScheduleStream
 {
 public:
-  using rmf2_scheduler::storage::ScheduleStream::ScheduleStream;
+  using ScheduleStream::ScheduleStream;
 
   /// Trampoline
   bool read_schedule(
-    rmf2_scheduler::cache::ScheduleCache::Ptr cache,
-    const rmf2_scheduler::data::TimeWindow & time_window,
+    cache::ScheduleCache::Ptr cache,
+    const data::TimeWindow & time_window,
     std::string & error
   ) override
   {
@@ -45,8 +40,8 @@ public:
   }
 
   bool write_schedule(
-    rmf2_scheduler::cache::ScheduleCache::ConstPtr cache,
-    const rmf2_scheduler::data::TimeWindow & time_window,
+    cache::ScheduleCache::ConstPtr cache,
+    const data::TimeWindow & time_window,
     std::string & error
   ) override
   {
@@ -54,8 +49,8 @@ public:
   }
 
   bool write_schedule(
-    rmf2_scheduler::cache::ScheduleCache::ConstPtr cache,
-    const std::vector<rmf2_scheduler::data::ScheduleChangeRecord> & records,
+    cache::ScheduleCache::ConstPtr cache,
+    const std::vector<data::ScheduleChangeRecord> & records,
     std::string & error
   ) override
   {
@@ -63,7 +58,7 @@ public:
   }
 
   bool refresh_tasks(
-    rmf2_scheduler::cache::ScheduleCache::Ptr cache,
+    cache::ScheduleCache::Ptr cache,
     const std::vector<std::string> & ids,
     std::string & error
   ) override
@@ -72,16 +67,28 @@ public:
   }
 };
 
+}  // namespace storage
+
+}  // namespace rmf2_scheduler
+
+
+namespace rmf2_scheduler_py
+{
+
+namespace storage
+{
+
 void init_schedule_stream_py(py::module & m)
 {
   using namespace rmf2_scheduler;  // NOLINT(build/namespaces)
-  using namespace rmf2_scheduler::storage;  // NOLINT(build/namespaces)
+  using rmf2_scheduler::storage::ScheduleStream;
+  using rmf2_scheduler::storage::PyScheduleStream;
 
   py::module m_storage = m.def_submodule("storage");
 
   py::class_<
     ScheduleStream,
-    rmf2_scheduler_py::storage::PyScheduleStream,
+    PyScheduleStream,
     ScheduleStream::Ptr
   >(
     m_storage,

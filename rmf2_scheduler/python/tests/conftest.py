@@ -18,18 +18,6 @@ import pytest
 from rmf2_scheduler import ProcessExecutor, TaskExecutor
 from rmf2_scheduler.storage import ScheduleStream
 
-# Each Mock* class below is a trampoline subclass whose overrides are all
-# delegated to an autospec'd Mock, so a test configures behavior the same
-# way it would for any other mock (return_value/side_effect) and can assert
-# on calls (call_count/call_args) the same way too.
-#
-# Call the method through the pybind-registered base class, e.g.
-# ScheduleStream.read_schedule(mock_schedule_stream, ...), not directly on
-# the instance. A direct instance call resolves to the mock attribute via
-# plain Python attribute lookup and never reaches the C++ trampoline;
-# routing it through the base class forces the native virtual dispatch that
-# actually looks up and calls the Python override.
-
 
 class MockScheduleStream(ScheduleStream):
     def __init__(self):

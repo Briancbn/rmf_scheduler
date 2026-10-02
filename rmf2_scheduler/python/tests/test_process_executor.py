@@ -56,8 +56,6 @@ def test_run_async_invalid_number_of_returns(mock_process_executor):
 
 
 def test_run_async_missing_override():
-    # A subclass that leaves run_async undefined, unlike
-    # mock_process_executor, which always has one (the autospec'd Mock).
     class BareProcessExecutor(ProcessExecutor):
         pass
 

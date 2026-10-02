@@ -122,8 +122,6 @@ def test_refresh_tasks_propagates_failure(mock_schedule_stream):
 
 
 def test_missing_override_fails_gracefully():
-    # A subclass that leaves every override undefined, unlike
-    # mock_schedule_stream, which always has one (the autospec'd Mock).
     class BareScheduleStream(ScheduleStream):
         pass
 
