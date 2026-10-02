@@ -53,8 +53,6 @@ def test_start_invalid_number_of_returns(mock_task_executor):
 
 
 def test_start_missing_override():
-    # A subclass that leaves start undefined, unlike mock_task_executor,
-    # which always has one (the autospec'd Mock).
     class BareTaskExecutor(TaskExecutor):
         pass
 
