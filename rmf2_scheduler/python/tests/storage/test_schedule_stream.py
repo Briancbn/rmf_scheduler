@@ -26,7 +26,7 @@ def test_read_schedule_success(mock_schedule_stream):
 
     assert result
     assert error == ""
-    assert mock_schedule_stream.mock.read_schedule.call_count == 1
+    mock_schedule_stream.mock.read_schedule.assert_called_once()
 
 
 def test_read_schedule_propagates_failure(mock_schedule_stream):
