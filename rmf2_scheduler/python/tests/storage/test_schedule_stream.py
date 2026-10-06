@@ -82,7 +82,7 @@ def test_write_schedule_records_overload(mock_schedule_stream):
 
     assert result
     assert error == ""
-    assert mock_schedule_stream.mock.write_schedule.call_count == 1
+    mock_schedule_stream.mock.write_schedule.assert_called_once()
 
 
 def test_write_schedule_propagates_failure(mock_schedule_stream):
